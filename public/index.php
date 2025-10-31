@@ -8,6 +8,19 @@ require_once __DIR__ . '/../app/Helpers/security.php';
 require_once __DIR__ . '/../app/Helpers/upload.php';
 require_once __DIR__ . '/../app/Router.php';
 
+// Simple autoloader for App\* classes
+spl_autoload_register(function ($class): void {
+	if (substr($class, 0, 4) !== 'App\\') {
+		return;
+	}
+	$relative = str_replace('App\\', 'app/', $class);
+	$relative = str_replace('\\', '/', $relative) . '.php';
+	$file = dirname(__DIR__) . '/' . $relative;
+	if (is_file($file)) {
+		require_once $file;
+	}
+});
+
 use App\Router;
 
 App\Security\start_secure_session();
