@@ -15,7 +15,7 @@ function is_allowed_image_mime(string $mime): bool
 	return in_array($mime, $allowed, true);
 }
 
-function move_uploaded_image(array $file, string $destDir, int $maxBytes = 5_000_000): ?string
+function move_uploaded_image(array $file, string $destDir, int $maxBytes = 5000000): ?string
 {
 	if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
 		return null;
@@ -32,13 +32,23 @@ function move_uploaded_image(array $file, string $destDir, int $maxBytes = 5_000
 	if (!is_allowed_image_mime($mime)) {
 		return null;
 	}
-	$ext = match ($mime) {
-		'image/jpeg' => '.jpg',
-		'image/png' => '.png',
-		'image/gif' => '.gif',
-		'image/webp' => '.webp',
-		default => ''
-	};
+	$ext = '';
+	switch ($mime) {
+		case 'image/jpeg':
+			$ext = '.jpg';
+			break;
+		case 'image/png':
+			$ext = '.png';
+			break;
+		case 'image/gif':
+			$ext = '.gif';
+			break;
+		case 'image/webp':
+			$ext = '.webp';
+			break;
+		default:
+			$ext = '';
+	}
 	$base = pathinfo($file['name'] ?? 'image', PATHINFO_FILENAME);
 	$base = sanitize_filename($base);
 	$filename = $base . '-' . bin2hex(random_bytes(6)) . $ext;
@@ -46,7 +56,6 @@ function move_uploaded_image(array $file, string $destDir, int $maxBytes = 5_000
 	if (!move_uploaded_file($tmp, $destPath)) {
 		return null;
 	}
-	// Restrict permissions
 	@chmod($destPath, 0644);
 	return $filename;
 }
