@@ -7,6 +7,7 @@ use App\Database;
 use function App\Security\csrf_token;
 use function App\Security\verify_csrf;
 use function App\Security\e;
+use function App\Upload\move_uploaded_image;
 
 class NewsController
 {
@@ -21,7 +22,7 @@ class NewsController
 	public function index(): void
 	{
 		$db = Database::getConnection();
-		$result = $db->query('SELECT id, title, content, created_at FROM news ORDER BY created_at DESC LIMIT 50');
+		$result = $db->query('SELECT id, title, content, image_path, created_at FROM news ORDER BY created_at DESC LIMIT 50');
 		$news = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
 		$title = 'Berita';
 		$view = __DIR__ . '/../../views/news/index.php';
@@ -47,14 +48,25 @@ class NewsController
 		}
 		$title = trim((string)($_POST['title'] ?? ''));
 		$content = trim((string)($_POST['content'] ?? ''));
+		$imageFilename = null;
+		if (!empty($_FILES['image']['name'] ?? '')) {
+			$uploadDir = dirname(__DIR__, 2) . '/public/uploads';
+			$imageFilename = move_uploaded_image($_FILES['image'], $uploadDir);
+		}
 		if ($title === '' || $content === '') {
 			$_SESSION['flash_error'] = 'Judul dan konten wajib diisi.';
 			header('Location: /admin/news/create');
 			return;
 		}
 		$db = Database::getConnection();
-		$stmt = $db->prepare('INSERT INTO news(title, content) VALUES(?, ?)');
-		$stmt->bind_param('ss', $title, $content);
+		if ($imageFilename) {
+			$stmt = $db->prepare('INSERT INTO news(title, content, image_path) VALUES(?, ?, ?)');
+			$imagePath = '/uploads/' . $imageFilename;
+			$stmt->bind_param('sss', $title, $content, $imagePath);
+		} else {
+			$stmt = $db->prepare('INSERT INTO news(title, content) VALUES(?, ?)');
+			$stmt->bind_param('ss', $title, $content);
+		}
 		$stmt->execute();
 		$_SESSION['flash_success'] = 'Berita berhasil ditambahkan.';
 		header('Location: /news');

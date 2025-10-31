@@ -1,6 +1,15 @@
 <?php
 declare(strict_types=1);
 ?>
+<?php if (!empty($bannerPath)): ?>
+	<div class="banner">
+		<img src="<?php echo App\Security\e($bannerPath); ?>" alt="Banner" />
+		<?php if (!empty($bannerCaption)): ?>
+			<div class="banner-caption"><?php echo App\Security\e($bannerCaption); ?></div>
+		<?php endif; ?>
+	</div>
+	<br />
+<?php endif; ?>
 <section class="hero">
 	<h1>Selamat Datang di MIN 1 Pringsewu</h1>
 	<p>Madrasah Ibtidaiyah Negeri 1 Pringsewu berkomitmen pada pendidikan berkualitas dan berakhlak mulia.</p>

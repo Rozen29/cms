@@ -5,6 +5,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../app/config.php';
 require_once __DIR__ . '/../app/Database.php';
 require_once __DIR__ . '/../app/Helpers/security.php';
+require_once __DIR__ . '/../app/Helpers/upload.php';
 require_once __DIR__ . '/../app/Router.php';
 
 use App\Router;
@@ -21,5 +22,7 @@ $router->get('/admin', 'AdminController@dashboard');
 $router->get('/admin/news/create', 'NewsController@createForm');
 $router->post('/admin/news/create', 'NewsController@create');
 $router->get('/admin/news/delete', 'NewsController@delete');
+$router->get('/admin/banner', 'BannerController@editForm');
+$router->post('/admin/banner', 'BannerController@update');
 
 $router->dispatch();

@@ -1,0 +1,8 @@
+# Deny PHP execution in uploads
+<FilesMatch "\.(php|php5|phtml)$">
+	Require all denied
+</FilesMatch>
+
+Options -ExecCGI
+RemoveHandler .php .phtml .php5
+RemoveType .php .phtml .php5
